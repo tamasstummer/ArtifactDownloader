@@ -4,8 +4,8 @@ What can the script do for us?
     Download all the debug and release libs from jenkins, so we dont have to build it locally
 
 What is downloaded exactly. 
- - all z-wave lib (debug & release)
- - all zpal lib (debug & release)
+ - all z-wave lib (release)
+ - all zpal lib (release)
  - all bootloader (ota & otw)
  - RAIL libraries
  - nvm3 libs
