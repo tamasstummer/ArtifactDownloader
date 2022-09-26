@@ -16,10 +16,10 @@ import argparse
 branch_zwave = "develop/22q4" 
 branch_current_half_year = "develop/22q4"
 rel_path = "../" #This scipt relative path to super or whatever repo you're using. Mine if Work/ArtifactDownloader, and Work/super, so I only need to .. 1 times
-repo_name_that_you_are_using = rel_path + "super"
+repo_name_that_you_are_using = rel_path + "stereo"
 
 zwave_lib_destination_path = repo_name_that_you_are_using + "/protocol/z-wave/ZWave"
-rail_lib_destination_path  = repo_name_that_you_are_using + "/platform/radio/rail_lib/autogen"
+rail_lib_destination_path  = repo_name_that_you_are_using + "/platform/radio/rail_lib/autogen/librail_release"
 zpal_lib_destination_path  = repo_name_that_you_are_using + "/protocol/z-wave/platform/SiliconLabs/PAL"
 zwave_bootloader_path      = repo_name_that_you_are_using + "/protocol/z-wave/UCBootLoader"
 
@@ -34,7 +34,7 @@ def download_rail_libs(branch_name) -> None:
     print("Downloading RAIL libs...\n")
     global name_of_raillib_zip
     name_of_raillib_zip = "raillibs.zip"
-    url_rail_libs = " https://zwave-jenkins.silabs.com/job/zw/job/zwave_platform_build/job/" + branch_name +"/lastSuccessfulBuild/artifact/platform/radio/rail_lib/autogen/librail_release/*zip*/" + name_of_raillib_zip
+    url_rail_libs = " http://iot-jenkins-master.silabs.com:8080/job/Gecko%20SDK%20Suite%20RAIL%20Continuous%20Integration%20-%20Mono/job/" + branch_name +"/lastSuccessfulBuild/artifact/gsdk/platform/radio/rail_lib/autogen/librail_release/*zip*/" + name_of_raillib_zip
     os.system('wget ' + url_rail_libs)
 
 def download_zwave_libs(branch_name) -> None:
