@@ -19,7 +19,7 @@ rel_path = "../" #This scipt relative path to super or whatever repo you're usin
 repo_name_that_you_are_using = rel_path + "stereo"
 
 zwave_lib_destination_path = repo_name_that_you_are_using + "/protocol/z-wave/ZWave"
-rail_lib_destination_path  = repo_name_that_you_are_using + "/platform/radio/rail_lib/autogen/librail_release"
+rail_lib_destination_path  = repo_name_that_you_are_using + "/platform/radio/rail_lib/autogen"
 zpal_lib_destination_path  = repo_name_that_you_are_using + "/protocol/z-wave/platform/SiliconLabs/PAL"
 zwave_bootloader_path      = repo_name_that_you_are_using + "/protocol/z-wave/UCBootLoader"
 
