@@ -16,7 +16,7 @@ import argparse
 branch_zwave = "develop/22q4" 
 branch_current_half_year = "develop/22q4"
 rel_path = "../" #This scipt relative path to super or whatever repo you're using. Mine if Work/ArtifactDownloader, and Work/super, so I only need to .. 1 times
-repo_name_that_you_are_using = rel_path + "stereo"
+repo_name_that_you_are_using = rel_path + "super"
 
 zwave_lib_destination_path = repo_name_that_you_are_using + "/protocol/z-wave/ZWave"
 rail_lib_destination_path  = repo_name_that_you_are_using + "/platform/radio/rail_lib/autogen"
