@@ -34,7 +34,7 @@ def download_rail_libs(branch_name) -> None:
     print("Downloading RAIL libs...\n")
     global name_of_raillib_zip
     name_of_raillib_zip = "raillibs.zip"
-    url_rail_libs = " http://iot-jenkins-master.silabs.com:8080/job/Gecko%20SDK%20Suite%20RAIL%20Continuous%20Integration%20-%20Mono/job/" + branch_name +"/lastSuccessfulBuild/artifact/gsdk/platform/radio/rail_lib/autogen/librail_release/*zip*/" + name_of_raillib_zip
+    url_rail_libs = " http://iot-jenkins-master.silabs.com:8080/job/Gecko_SDK_Suite_RAIL_Continuous_Integration/job/" + branch_name +"/lastSuccessfulBuild/artifact/super/platform/radio/rail_lib/autogen/librail_release/*zip*/" + name_of_raillib_zip
     os.system('wget ' + url_rail_libs)
 
 def download_zwave_libs(branch_name) -> None:
