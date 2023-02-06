@@ -14,7 +14,7 @@ import zipfile
 import argparse
 
 branch_zwave = "develop/23q2" 
-branch_current_half_year = "develop/22q4"
+branch_current_half_year = "develop/23q2"
 rel_path = "../" #This scipt relative path to super or whatever repo you're using. Mine if Work/ArtifactDownloader, and Work/super, so I only need to .. 1 times
 repo_name_that_you_are_using = rel_path + "super"
 
@@ -34,7 +34,7 @@ def download_rail_libs(branch_name) -> None:
     print("Downloading RAIL libs...\n")
     global name_of_raillib_zip
     name_of_raillib_zip = "raillibs.zip"
-    url_rail_libs = " http://iot-jenkins-master.silabs.com:8080/job/Gecko_SDK_Suite_RAIL_Continuous_Integration/job/" + branch_name +"/lastSuccessfulBuild/artifact/super/platform/radio/rail_lib/autogen/librail_release/*zip*/" + name_of_raillib_zip
+    url_rail_libs = "https://zwave-jenkins.silabs.com/job/zw/job/zwave_platform_build/job/" + branch_name +"/lastSuccessfulBuild/artifact/platform/radio/rail_lib/autogen/librail_release/*zip*/" + name_of_raillib_zip
     os.system('wget ' + url_rail_libs)
 
 def download_zwave_libs(branch_name) -> None:
