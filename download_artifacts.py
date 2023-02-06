@@ -13,7 +13,7 @@ import os
 import zipfile
 import argparse
 
-branch_zwave = "develop/22q4" 
+branch_zwave = "develop/23q2" 
 branch_current_half_year = "develop/22q4"
 rel_path = "../" #This scipt relative path to super or whatever repo you're using. Mine if Work/ArtifactDownloader, and Work/super, so I only need to .. 1 times
 repo_name_that_you_are_using = rel_path + "super"
