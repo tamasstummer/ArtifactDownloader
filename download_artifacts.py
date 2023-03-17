@@ -28,6 +28,7 @@ zwave_bootloader_path      = repo_name_that_you_are_using + "/protocol/z-wave/UC
 parser = argparse.ArgumentParser(description="Download required libraries from jenkins for z-wave")
 parser.add_argument('--zbranch',     type=str, help="branch of z-wave libs",      nargs='?', default = branch_zwave)
 parser.add_argument('--branch',      type=str, help="branch of rail libs, nvm",   nargs='?', default = branch_current_half_year)
+parser.add_argument('--debug',                 help="zwave_stack_libs",           action='count', default=0)
 args = parser.parse_args()
 
 def download_rail_libs(branch_name) -> None:
@@ -57,6 +58,20 @@ def download_bootloader_libs(branch_name) -> None:
     name_of_bootloader_zip = "bootloader.zip"
     url_bootloader_libs = "https://zwave-jenkins.silabs.com/job/zw/job/zwave_platform_build/job/" + branch_name + "/lastSuccessfulBuild/artifact/protocol/z-wave/UCBootLoader/build/*zip*/" + name_of_bootloader_zip
     os.system('wget ' + url_bootloader_libs)
+    
+def download_debug_libs():
+    print("Downloading PAL debug files...\n")
+    global name_of_pal_debug_zip
+    name_of_pal_debug_zip = "pal_debug.zip"
+    url_pal_debug_libs = "https://zwave-jenkins.silabs.com/job/zw-zwave/job/feature%2Fmamihali%2Flibdebug_test/3/artifact/platform/SiliconLabs/PAL/lib_debug/*zip*/" + name_of_pal_debug_zip
+    os.system('wget ' + url_pal_debug_libs)
+    
+    print("Downloading ZWave debug files...\n")
+    global name_of_zwave_debug_zip
+    name_of_zwave_debug_zip = "zwave_debug.zip"
+    url_zwave_debug_libs = "https://zwave-jenkins.silabs.com/job/zw-zwave/job/feature%2Fmamihali%2Flibdebug_test/3/artifact/ZWave/lib_debug/*zip*/" + name_of_zwave_debug_zip
+    os.system('wget ' + url_zwave_debug_libs)
+    
 
 def extract_all_libs() -> None:
     print("Extract zip files...\n")
@@ -72,6 +87,12 @@ def extract_all_libs() -> None:
 
     with zipfile.ZipFile(name_of_raillib_zip, 'r') as zip_ref:
         zip_ref.extractall(rail_lib_destination_path)
+        
+    with zipfile.ZipFile(name_of_pal_debug_zip, 'r') as zip_ref:
+        zip_ref.extractall(zpal_lib_destination_path)
+        
+    with zipfile.ZipFile(name_of_zwave_debug_zip, 'r') as zip_ref:
+        zip_ref.extractall(zwave_lib_destination_path)
 
 def delete_downloaded_files() -> None:
     print("Delete any ZIP files...\n")
@@ -91,13 +112,15 @@ def main() -> None:
     branch_name = args.branch.replace("/", "%252F")  # Jenkins needs this
     zbranch_name = args.zbranch.replace("/", "%252F")  # Jenkins needs this
 
-    download_zwave_libs(zbranch_name)
-    download_zpal_libs(zbranch_name)
-    download_bootloader_libs(branch_name)
-    download_rail_libs(branch_name)
-    extract_all_libs()
-    handle_nvm_stuff()
-    delete_downloaded_files()
+    # download_zwave_libs(zbranch_name)
+    # download_zpal_libs(zbranch_name)
+    # download_bootloader_libs(branch_name)
+    # download_rail_libs(branch_name)
+    if args.debug != 0:
+        download_debug_libs()
+    # extract_all_libs()
+    # handle_nvm_stuff()
+    # delete_downloaded_files()
     print("Done")
 
 if __name__ == "__main__":
