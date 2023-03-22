@@ -1,7 +1,8 @@
 # ArtifactDownloader
 
 What can the script do for us?
-    Download all the debug and release libs from jenkins, so we dont have to build it locally
+    Download all release libs from jenkins, so we dont have to build it locally
+    Can build debug libs what we don't store
 
 What is downloaded exactly. 
  - all z-wave lib (release)
@@ -10,17 +11,25 @@ What is downloaded exactly.
  - RAIL libraries
  - nvm3 libs
 
+What can be built?
+ - all z-wave lib (debug)
+ - all zpal lib (debug)
+
 What steps are needed before first run:
  - get python3
- - get cygwin or WSL
- - setup the variable at the top of the python file:
+ - get MSYS2 with wget and make installed.
 
-How can I use the script?
+## Usage
 
-The parameters are optional, you can add the target brach of the z-wave stuff, and the target branch of the super too.
-The develop/22q4 are the default if no parameter is given
-
-Example call:
+### Download release libs
+```bash
+python download_artifacts.py
 ```
-python3 download_artifacts.py --zbranch develop/22q4 --branch develop/22q4
+### Download release libs and build debug libs
+```bash
+python download_artifacts.py --debug
+```
+### Build debug libs only
+```bash
+python download_artifacts.py --only_debug
 ```

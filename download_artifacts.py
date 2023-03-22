@@ -12,25 +12,56 @@ print("""\
 import os
 import zipfile
 import argparse
+import json
+import subprocess
+import time
+import shutil
+
 
 branch_zwave = "develop/23q2" 
 branch_current_half_year = "develop/23q2"
-rel_path = "../" #This scipt relative path to super or whatever repo you're using. Mine if Work/ArtifactDownloader, and Work/super, so I only need to .. 1 times
-repo_name_that_you_are_using = rel_path + "super"
-
-zwave_lib_destination_path = repo_name_that_you_are_using + "/protocol/z-wave/ZWave"
-rail_lib_destination_path  = repo_name_that_you_are_using + "/platform/radio/rail_lib/autogen"
-zpal_lib_destination_path  = repo_name_that_you_are_using + "/protocol/z-wave/platform/SiliconLabs/PAL"
-zwave_bootloader_path      = repo_name_that_you_are_using + "/protocol/z-wave/UCBootLoader"
-
 #-----------------------------------------------------------------------------------------------
 # Parse the inputs first
 parser = argparse.ArgumentParser(description="Download required libraries from jenkins for z-wave")
 parser.add_argument('--zbranch',     type=str, help="branch of z-wave libs",      nargs='?', default = branch_zwave)
 parser.add_argument('--branch',      type=str, help="branch of rail libs, nvm",   nargs='?', default = branch_current_half_year)
-parser.add_argument('--debug',                 help="zwave_stack_libs",           action='count', default=0)
+parser.add_argument('--debug',                 help="build z-wave and PAL debug libs",       action='count', default=0)
+parser.add_argument('--only_debug',            help="only debug build, no download",         action='count', default=0)
+parser.add_argument('--ninja',                 help="build with ninja",           action='count', default=0)
 args = parser.parse_args()
 
+def parse_config() -> json:
+    try:
+        print("Openning config.json...")
+        with open("config.json") as config_file:
+            config_file_string = config_file.read()
+    except IOError:
+        print("Can't open config.json file.")
+        exit(1)
+
+    try:
+        config_file = json.loads(config_file_string)
+        global repo_name_that_you_are_using
+        if config_file["relPathEnable"] == True:
+            repo_name_that_you_are_using = config_file["relPath"]
+        else:
+            repo_name_that_you_are_using = config_file["absPath"]
+        
+        global zwave_lib_destination_path
+        global rail_lib_destination_path
+        global zpal_lib_destination_path
+        global zwave_bootloader_path
+        
+        zwave_lib_destination_path = repo_name_that_you_are_using + "/protocol/z-wave/ZWave"
+        rail_lib_destination_path  = repo_name_that_you_are_using + "/platform/radio/rail_lib/autogen"
+        zpal_lib_destination_path  = repo_name_that_you_are_using + "/protocol/z-wave/platform/SiliconLabs/PAL"
+        zwave_bootloader_path      = repo_name_that_you_are_using + "/protocol/z-wave/UCBootLoader"
+    except:
+        print("Can't parse config.json file or invalid content")
+        exit(1)
+        
+    return
+            
 def download_rail_libs(branch_name) -> None:
     print("Downloading RAIL libs...\n")
     global name_of_raillib_zip
@@ -59,19 +90,46 @@ def download_bootloader_libs(branch_name) -> None:
     url_bootloader_libs = "https://zwave-jenkins.silabs.com/job/zw/job/zwave_platform_build/job/" + branch_name + "/lastSuccessfulBuild/artifact/protocol/z-wave/UCBootLoader/build/*zip*/" + name_of_bootloader_zip
     os.system('wget ' + url_bootloader_libs)
     
-def download_debug_libs():
-    print("Downloading PAL debug files...\n")
-    global name_of_pal_debug_zip
-    name_of_pal_debug_zip = "pal_debug.zip"
-    url_pal_debug_libs = "https://zwave-jenkins.silabs.com/job/zw-zwave/job/feature%2Fmamihali%2Flibdebug_test/3/artifact/platform/SiliconLabs/PAL/lib_debug/*zip*/" + name_of_pal_debug_zip
-    os.system('wget ' + url_pal_debug_libs)
-    
-    print("Downloading ZWave debug files...\n")
-    global name_of_zwave_debug_zip
-    name_of_zwave_debug_zip = "zwave_debug.zip"
-    url_zwave_debug_libs = "https://zwave-jenkins.silabs.com/job/zw-zwave/job/feature%2Fmamihali%2Flibdebug_test/3/artifact/ZWave/lib_debug/*zip*/" + name_of_zwave_debug_zip
-    os.system('wget ' + url_zwave_debug_libs)
-    
+def overwrite_build_py() -> None:
+    with open(f'{repo_name_that_you_are_using}/protocol/z-wave/build.py', 'r') as file :
+        filedata = file.read()
+    filedata = filedata.replace('os.path.realpath', '')
+    if args.ninja == True:
+        filedata = filedata.replace('MinGW Makefiles', 'Ninja')
+        filedata = filedata.replace('mingw32-make', 'ninja')
+    else: 
+        filedata = filedata.replace('MinGW Makefiles', 'Unix Makefiles')
+        filedata = filedata.replace('mingw32-make', 'make')
+    filedata = filedata.replace('-j8', '-j20')
+    with open(f'{repo_name_that_you_are_using}/protocol/z-wave/build.py', 'w') as file:
+        file.write(filedata)
+
+def build_debug_libs() -> None:
+    print("Building debug libraries...")
+    try:
+        os.chdir(f'{repo_name_that_you_are_using}/protocol/z-wave')
+        python = "python3"
+        if os.name == 'nt':
+            python = "python.exe"
+        
+        overwrite_build_py()
+        cmd = f'{python} build.py --cmake --build --debug -VV'
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, shell=True)
+        result.stdout.decode()
+        os.system('git restore build.py')
+    except:
+        exit(1)        
+
+def remove_build_folder_s1_s2() -> None:
+    print('Remove series1 and series2 directories from build')
+    try:
+        shutil.rmtree(f'{repo_name_that_you_are_using}/protocol/z-wave/build/series1')
+    except FileNotFoundError:
+        print('No series1 build found.')
+    try:
+        shutil.rmtree(f'{repo_name_that_you_are_using}/protocol/z-wave/build/series2')
+    except FileNotFoundError:
+        print('No series2 build found.')
 
 def extract_all_libs() -> None:
     print("Extract zip files...\n")
@@ -87,12 +145,6 @@ def extract_all_libs() -> None:
 
     with zipfile.ZipFile(name_of_raillib_zip, 'r') as zip_ref:
         zip_ref.extractall(rail_lib_destination_path)
-        
-    with zipfile.ZipFile(name_of_pal_debug_zip, 'r') as zip_ref:
-        zip_ref.extractall(zpal_lib_destination_path)
-        
-    with zipfile.ZipFile(name_of_zwave_debug_zip, 'r') as zip_ref:
-        zip_ref.extractall(zwave_lib_destination_path)
 
 def delete_downloaded_files() -> None:
     print("Delete any ZIP files...\n")
@@ -106,22 +158,29 @@ def handle_nvm_stuff() -> None:
     os.system("cd " + repo_name_that_you_are_using + "/platform/emdrv/nvm3 && make gcc")
 
 def main() -> None:
+    start_time = time.time()
+    parse_config()
     print("Download required libraries from jenkins for z-wave")
     delete_downloaded_files()
 
     branch_name = args.branch.replace("/", "%252F")  # Jenkins needs this
     zbranch_name = args.zbranch.replace("/", "%252F")  # Jenkins needs this
 
-    # download_zwave_libs(zbranch_name)
-    # download_zpal_libs(zbranch_name)
-    # download_bootloader_libs(branch_name)
-    # download_rail_libs(branch_name)
-    if args.debug != 0:
-        download_debug_libs()
-    # extract_all_libs()
-    # handle_nvm_stuff()
-    # delete_downloaded_files()
+    if args.only_debug != True:
+        download_zwave_libs(zbranch_name)
+        download_zpal_libs(zbranch_name)
+        download_bootloader_libs(branch_name)
+        download_rail_libs(branch_name)
+        extract_all_libs()
+        handle_nvm_stuff()
+        delete_downloaded_files()
+    if args.debug != 0 or args.only_debug:
+        remove_build_folder_s1_s2()
+        build_debug_libs()
     print("Done")
+    
+    time_spent = time.time()-start_time
+    print(f'Script run {time_spent} seconds and {time_spent / 60} minutes')
 
 if __name__ == "__main__":
   main()
