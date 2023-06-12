@@ -24,10 +24,11 @@ branch_current_half_year = "develop/23q2"
 #-----------------------------------------------------------------------------------------------
 # Parse the inputs first
 parser = argparse.ArgumentParser(description="Download required libraries from jenkins for z-wave")
-parser.add_argument('--zbranch',     type=str, help="branch of z-wave libs",      nargs='?', default = branch_zwave)
-parser.add_argument('--branch',      type=str, help="branch of rail libs, nvm",   nargs='?', default = branch_current_half_year)
-parser.add_argument('--debug',                 help="build z-wave and PAL debug libs",       action='count', default=0)
-parser.add_argument('--only_debug',            help="only debug build, no download",         action='count', default=0)
+parser.add_argument('--zbranch',     type=str, help="branch of z-wave libs",      nargs='?',  default = branch_zwave)
+parser.add_argument('--branch',      type=str, help="branch of rail libs, nvm",   nargs='?',  default = branch_current_half_year)
+parser.add_argument('--debug',                 help="build z-wave and PAL debug libs",        action='count', default=0)
+parser.add_argument('--only_debug',            help="only debug build, no download",          action='count', default=0)
+parser.add_argument('--clean',                 help="remove s1 and s2 release, debug folders",action='count', default=0)
 args = parser.parse_args()
 
 def parse_config() -> json:
@@ -158,7 +159,8 @@ def main() -> None:
         handle_nvm_stuff()
         delete_downloaded_files()
     if args.debug != 0 or args.only_debug:
-        remove_build_folder_s1_s2()
+        if args.clean != 0:
+            remove_build_folder_s1_s2()
         build_debug_libs()
     print("Done")
     
