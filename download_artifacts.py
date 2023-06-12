@@ -14,6 +14,7 @@ import zipfile
 import argparse
 import json
 import subprocess
+import sys
 import time
 import shutil
 
@@ -27,7 +28,6 @@ parser.add_argument('--zbranch',     type=str, help="branch of z-wave libs",    
 parser.add_argument('--branch',      type=str, help="branch of rail libs, nvm",   nargs='?', default = branch_current_half_year)
 parser.add_argument('--debug',                 help="build z-wave and PAL debug libs",       action='count', default=0)
 parser.add_argument('--only_debug',            help="only debug build, no download",         action='count', default=0)
-parser.add_argument('--ninja',                 help="build with ninja",           action='count', default=0)
 args = parser.parse_args()
 
 def parse_config() -> json:
@@ -89,20 +89,6 @@ def download_bootloader_libs(branch_name) -> None:
     name_of_bootloader_zip = "bootloader.zip"
     url_bootloader_libs = "https://zwave-jenkins.silabs.com/job/zw/job/zwave_platform_build/job/" + branch_name + "/lastSuccessfulBuild/artifact/protocol/z-wave/UCBootLoader/build/*zip*/" + name_of_bootloader_zip
     os.system('wget ' + url_bootloader_libs)
-    
-def overwrite_build_py() -> None:
-    with open(f'{repo_name_that_you_are_using}/protocol/z-wave/build.py', 'r') as file :
-        filedata = file.read()
-    filedata = filedata.replace('os.path.realpath', '')
-    if args.ninja == True:
-        filedata = filedata.replace('MinGW Makefiles', 'Ninja')
-        filedata = filedata.replace('mingw32-make', 'ninja')
-    else: 
-        filedata = filedata.replace('MinGW Makefiles', 'Unix Makefiles')
-        filedata = filedata.replace('mingw32-make', 'make')
-    filedata = filedata.replace('-j8', '-j20')
-    with open(f'{repo_name_that_you_are_using}/protocol/z-wave/build.py', 'w') as file:
-        file.write(filedata)
 
 def build_debug_libs() -> None:
     print("Building debug libraries...")
@@ -112,11 +98,8 @@ def build_debug_libs() -> None:
         if os.name == 'nt':
             python = "python.exe"
         
-        overwrite_build_py()
         cmd = f'{python} build.py --cmake --build --debug -VV'
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, shell=True)
-        result.stdout.decode()
-        os.system('git restore build.py')
+        subprocess.run(cmd, stdout=sys.stdout, shell=True)
     except:
         exit(1)        
 
