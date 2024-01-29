@@ -4,16 +4,6 @@ import shutil
 import time
 import argparse
 
-print("""
-   _____      _         _          __  __    __                            _            _    _           
-  / ____|    | |       | |        / _|/ _|  / _|                          | |          | |  (_)          
- | |  __  ___| |_   ___| |_ _   _| |_| |_  | |_ _ __ ___  _ __ ___        | | ___ _ __ | | ___ _ __  ___ 
- | | |_ |/ _ \ __| / __| __| | | |  _|  _| |  _| '__/ _ \| '_ ` _ \   _   | |/ _ \ '_ \| |/ / | '_ \/ __|
- | |__| |  __/ |_  \__ \ |_| |_| | | | |   | | | | | (_) | | | | | | | |__| |  __/ | | |   <| | | | \__ \ 
-  \_____|\___|\__| |___/\__|\__,_|_| |_|   |_| |_|  \___/|_| |_| |_|  \____/ \___|_| |_|_|\_\_|_| |_|___/
-                                                                                                         
-""")
-
 local_gsdk_path = "C:/SiliconLabs/super/"
 
 def download_rail_artifacts(build_number, branch_name):
@@ -54,6 +44,7 @@ def download_rail_artifacts(build_number, branch_name):
     ]
     for lib in rail_libs:
         download_libs(build_number, branch_name, relative_path_to_gsdk, lib)
+    print("   rail libs downloaded")
 
 def download_nvm3_artifacts(build_number, branch_name):
     relative_path_to_gsdk = f"platform/emdrv/nvm3/lib"
@@ -66,6 +57,7 @@ def download_nvm3_artifacts(build_number, branch_name):
 
     for lib in nvm3_libs:
         download_libs(build_number, branch_name, relative_path_to_gsdk, lib)
+    print("   nvm3 libs downloaded")
 
 def download_ZW_libs(build_number, branch_name):
     relative_path_to_gsdk = f"protocol/z-wave/ZWave/lib"
@@ -77,6 +69,7 @@ def download_ZW_libs(build_number, branch_name):
     ]
     for lib in zw_libs:
         download_libs(build_number, branch_name, relative_path_to_gsdk, lib)
+    print("   ZW libs downloaded")
 
 def download_ZPAL_libs(build_number, branch_name):
 
@@ -120,6 +113,7 @@ def download_ZPAL_libs(build_number, branch_name):
 
     for lib in zpal_libs:
         download_libs(build_number, branch_name, relative_path_to_gsdk, lib)
+    print("   ZPAL libs downloaded")
 
 def download_bootloaders(build_number, branch_name):
     relative_path_to_gsdk = f"protocol/z-wave/Apps/bin"
@@ -144,6 +138,7 @@ def download_bootloaders(build_number, branch_name):
 
     for lib in bootloader_libs:
         download_bootloader_libs(build_number, branch_name, relative_path_to_gsdk, lib)
+    print("   bootloader libs downloaded")
 
 def download_libs(build_number, branch_name, relative_path_to_gsdk, lib):
     url = f"https://artifactory.silabs.net/artifactory/gsdk-generic-development/{branch_name}/{build_number}/gecko-sdk.zip!/{relative_path_to_gsdk}{lib}"
@@ -162,26 +157,31 @@ def handle_environment_before_download():
     if os.path.exists(local_gsdk_path + "platform/radio/rail_lib/autogen/librail_release"):
         shutil.rmtree(local_gsdk_path + "platform/radio/rail_lib/autogen/librail_release")
     os.makedirs(local_gsdk_path + "platform/radio/rail_lib/autogen/librail_release")
+    print("librail_release folder created")
 
     #check if libnvm3 folder exists, if not create it, if yes delete it and create it again
     if os.path.exists(local_gsdk_path + "platform/emdrv/nvm3/lib"):
         shutil.rmtree(local_gsdk_path + "platform/emdrv/nvm3/lib")
     os.makedirs(local_gsdk_path + "platform/emdrv/nvm3/lib")
+    print("libnvm3 folder created")
 
     #check if libzwave folder exists, if not create it, if yes delete it and create it again
     if os.path.exists(local_gsdk_path + "protocol/z-wave/ZWave/lib"):
         shutil.rmtree(local_gsdk_path + "protocol/z-wave/ZWave/lib")
     os.makedirs(local_gsdk_path + "protocol/z-wave/ZWave/lib")
+    print("libzwave folder created")
 
     #check if libzpal folder exists, if not create it, if yes delete it and create it again
     if os.path.exists(local_gsdk_path + "protocol/z-wave/platform/SiliconLabs/PAL/lib"):
         shutil.rmtree(local_gsdk_path + "protocol/z-wave/platform/SiliconLabs/PAL/lib")
     os.mkdir(local_gsdk_path + "protocol/z-wave/platform/SiliconLabs/PAL/lib")
+    print("libzpal folder created")
 
     #check if bootloader folder exists, if not create it, if yes delete it and create it again
     if os.path.exists(local_gsdk_path + "protocol/z-wave/Apps/bin"):
         shutil.rmtree(local_gsdk_path + "protocol/z-wave/Apps/bin")
     os.mkdir(local_gsdk_path + "protocol/z-wave/Apps/bin")
+    print("bootloader folder created")
     
 def main():
 
