@@ -152,6 +152,12 @@ def download_bootloader_libs(build_number, branch_name, relative_path_to_gsdk, l
     filename = wget.download(url, out=local_gsdk_path + relative_path_to_gsdk + lib)
     # print("\n" + filename.split('/')[-1] + " downloaded")
 
+def download_esf_properties(build_number, branch_name):
+    url = f"https://artifactory.silabs.net/artifactory/gsdk-generic-development/{branch_name}/{build_number}/gecko-sdk.zip!/protocol/z-wave/esf.properties"
+    # print(url)
+    filename = wget.download(url, out=local_gsdk_path + "protocol/z-wave/esf.properties")
+    # print("\n" + filename.split('/')[-1] + " downloaded")
+
 def handle_environment_before_download():
     #check if librail_release folder exists, if not create it, if yes delete it and create it again
     if os.path.exists(local_gsdk_path + "platform/radio/rail_lib/autogen/librail_release"):
@@ -182,6 +188,10 @@ def handle_environment_before_download():
         shutil.rmtree(local_gsdk_path + "protocol/z-wave/Apps/bin")
     os.mkdir(local_gsdk_path + "protocol/z-wave/Apps/bin")
     print("bootloader folder created")
+
+    #delete the esf.properties file from the z_wave root folder
+    if os.path.exists(local_gsdk_path + "protocol/z-wave/esf.properties"):
+        os.remove(local_gsdk_path + "protocol/z-wave/esf.properties")
     
 def main():
 
@@ -202,6 +212,7 @@ def main():
     download_ZW_libs(build_number, branch)
     download_ZPAL_libs(build_number, branch)
     download_bootloaders(build_number, branch)
+    download_esf_properties(build_number, branch)
     # time taken for the script to run
     print("--- %s seconds ---" % (time.time() - start_time))
 
